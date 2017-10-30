@@ -10,7 +10,7 @@ var User = db.Model.extend({
   initialize: function (username, password) {
     var salt = bcrypt.genSaltSync(10);
     var hash = bcrypt.hashSync(password, salt);
-    // console.log('username', username, 'salt', salt, 'passwordHash', passwordHash);
+    console.log('username', username, 'salt', salt, 'passwordHash', hash);
     db.knex('users').insert( {'username': username, 'passwordHash': hash, 'salt': salt} )
       .then(function(result) {
       })

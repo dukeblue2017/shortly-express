@@ -38,12 +38,12 @@ var restrict = function(req, res, next) {
 };
 
 app.get('/', restrict, function(req, res) {
-    res.render('index');
-  });
+  res.render('index');
+});
 
 app.get('/create', restrict, function(req, res) {
-    res.render('index');
-  });
+  res.render('index');
+});
 
 app.get('/links', 
   //add restrict functions
@@ -93,11 +93,16 @@ app.get('/login', function(req, res) {
 });
 
 app.post('/login', function(req, res) {
-  var newUser = new User(req.body.username, req.body.password); 
+  res.end();
 });
 
 app.get('/signup', function(req, res) {
   res.render('signup');
+});
+
+app.post('/signup', function(req, res) {
+  var newUser = new User(req.body.username, req.body.password);
+  res.end(); 
 });
 
 
