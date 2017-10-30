@@ -13,8 +13,7 @@ var User = db.Model.extend({
     console.log('username', username, 'salt', salt, 'passwordHash', hash);
     db.knex('users').insert( {'username': username, 'passwordHash': hash, 'salt': salt} )
       .then(function(result) {
-      })
-    ;
+      });
   }
 });
 

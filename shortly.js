@@ -45,7 +45,7 @@ app.get('/create', restrict, function(req, res) {
   res.render('index');
 });
 
-app.get('/links', 
+app.get('/links', restrict, 
   //add restrict functions
   function(req, res) {
     Links.reset().fetch().then(function(links) {
@@ -53,37 +53,36 @@ app.get('/links',
     });
   });
 
-app.post('/links', 
-  function(req, res) {
-    var uri = req.body.url;
+app.post('/links', restrict, function(req, res) {
+  var uri = req.body.url;
 
-    if (!util.isValidUrl(uri)) {
-      console.log('Not a valid url: ', uri);
-      return res.sendStatus(404);
+  if (!util.isValidUrl(uri)) {
+    console.log('Not a valid url: ', uri);
+    return res.sendStatus(404);
+  }
+
+  new Link({ url: uri }).fetch().then(function(found) {
+    if (found) {
+      res.status(200).send(found.attributes);
+    } else {
+      util.getUrlTitle(uri, function(err, title) {
+        if (err) {
+          console.log('Error reading URL heading: ', err);
+          return res.sendStatus(404);
+        }
+
+        Links.create({
+          url: uri,
+          title: title,
+          baseUrl: req.headers.origin
+        })
+          .then(function(newLink) {
+            res.status(200).send(newLink);
+          });
+      });
     }
-
-    new Link({ url: uri }).fetch().then(function(found) {
-      if (found) {
-        res.status(200).send(found.attributes);
-      } else {
-        util.getUrlTitle(uri, function(err, title) {
-          if (err) {
-            console.log('Error reading URL heading: ', err);
-            return res.sendStatus(404);
-          }
-
-          Links.create({
-            url: uri,
-            title: title,
-            baseUrl: req.headers.origin
-          })
-            .then(function(newLink) {
-              res.status(200).send(newLink);
-            });
-        });
-      }
-    });
   });
+});
 
 /************************************************************/
 // Write your authentication routes here
