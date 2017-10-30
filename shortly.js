@@ -21,6 +21,7 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
+app.use(express.session());
 
 
 app.get('/', 
@@ -75,7 +76,13 @@ function(req, res) {
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+app.get('/login', function(req, res) {
+  res.render('login');
+});
 
+app.get('/signup', function(req, res) {
+  res.render('signup');
+});
 
 
 /************************************************************/
