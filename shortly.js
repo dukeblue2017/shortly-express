@@ -11,6 +11,7 @@ var Links = require('./app/collections/links');
 var Link = require('./app/models/link');
 var Click = require('./app/models/click');
 var expressSession = require('express-session');
+var bcrypt = require('bcrypt-nodejs');
 
 var app = express();
 
@@ -25,10 +26,12 @@ app.use(express.static(__dirname + '/public'));
 app.use(expressSession({
   secret: 'cookie_secret',
   resave: true,
-  saveUninitialized: true
+  saveUninitialized: true,
+  isLoggedIn: false
 }));
 
 var restrict = function(req, res, next) {
+  console.log('req.session:', req.session);
   if (req.session.isLoggedIn) {
     next();
   } else {
@@ -92,7 +95,23 @@ app.get('/login', function(req, res) {
 });
 
 app.post('/login', function(req, res) {
-  res.end();
+  var PasswordAttempt = req.body.password;
+
+  db.knex('users').where( {'username': req.body.username} ).select('*')
+    .then(function (result) {
+
+      newHash = bcrypt.hashSync(PasswordAttempt, result[0].salt);
+      var actualPasswordHash = result[0].passwordHash;
+      console.log('newHash', newHash, 'hPA', actualPasswordHash);
+      if (newHash === actualPasswordHash) {
+        req.session.isLoggedIn = true;
+        res.redirect('index');
+      } else {
+        res.redirect('login');
+      }
+    });
+  
+  
 });
 
 app.get('/signup', function(req, res) {
@@ -101,6 +120,7 @@ app.get('/signup', function(req, res) {
 
 app.post('/signup', function(req, res) {
   var newUser = new User(req.body.username, req.body.password);
+
   res.end(); 
 });
 
