@@ -40,8 +40,8 @@ var restrict = function(req, res, next) {
   }
 };
 
-app.post('/logout', restrict, function(req, res){
-  (console.log('running in post:logout'))
+app.post('/logout', restrict, function(req, res) {
+  (console.log('running in post:logout'));
   req.session.isLoggedIn = false;
   req.session.username = false;
   res.redirect('/login');
@@ -84,7 +84,8 @@ app.post('/links', function(req, res) {
         Links.create({
           url: uri,
           title: title,
-          baseUrl: req.headers.origin
+          baseUrl: req.headers.origin,
+          username: req.session.username
         })
           .then(function(newLink) {
             res.status(200).send(newLink);
@@ -134,7 +135,6 @@ app.post('/signup', function(req, res) {
   //check if user exists
   db.knex('users').where( {'username': req.body.username} ).select('*')
     .then(function (result) {
-      console.log(result.length, 'result.length');
       if (result.length === 0) {
         var newUser = new User(req.body.username, req.body.password);
         req.session.isLoggedIn = true;
@@ -143,7 +143,6 @@ app.post('/signup', function(req, res) {
         res.redirect('/');
 
       } else {
-        console.log('in else statement redirecting to login');
         res.redirect('login');
       }
     });

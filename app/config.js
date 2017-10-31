@@ -17,12 +17,14 @@ db.knex.schema.hasTable('urls').then(function(exists) {
       link.string('code', 100);
       link.string('title', 255);
       link.integer('visits');
+      link.string('username', 25);
       link.timestamps();
     }).then(function (table) {
       console.log('Created Table', table);
     });
   }
 });
+//
 
 db.knex.schema.hasTable('clicks').then(function(exists) {
   if (!exists) {
