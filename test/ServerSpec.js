@@ -191,7 +191,7 @@ describe('', function() {
 
         requestWithSession(options, function(error, res, body) {
           var code = res.body.code;
-          console.log('this is link-----------', link);
+          // console.log('this is link-----------', link);
           expect(code).to.equal(link.get('code'));
           done();
         });

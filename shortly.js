@@ -64,7 +64,7 @@ app.get('/links', restrict,
   //add restrict functions
   function(req, res) {
     Links.reset().fetch().then(function(links) {
-      console.log('**************************************', links);
+      // console.log('**************************************', links);
       var userLinksObject = links._byId;
       res.status(200).send(links.models);
     });
@@ -114,15 +114,15 @@ app.post('/login', function(req, res) {
 
   db.knex('users').where( {'username': req.body.username} ).select('*')
     .then(function (result) {
-      console.log(result, 'result if user not in users');
+      // console.log(result, 'result if user not in users');
       if (result.length > 0 ) {
         newHash = bcrypt.hashSync(PasswordAttempt, result[0].salt);
         var actualPasswordHash = result[0].password;
-        console.log('plain text pw', PasswordAttempt, 'hash', actualPasswordHash, 'the new hash: ~~~~~~~~~~~~~~~~~~~~~~~~~: ', newHash);
+        // console.log('plain text pw', PasswordAttempt, 'hash', actualPasswordHash, 'the new hash: ~~~~~~~~~~~~~~~~~~~~~~~~~: ', newHash);
 
         bcrypt.compare(PasswordAttempt, actualPasswordHash, function(err, match) {
           if (match) {
-            console.log('they match');
+            // console.log('they match');
             req.session.isLoggedIn = true;
             req.session.cookie.doesThisWork = 'blue';
             req.session.username = req.body.username;
@@ -150,7 +150,7 @@ app.post('/signup', function(req, res) {
         var newUser = new User({username: req.body.username, password: req.body.password });
         req.session.isLoggedIn = true;
         req.session.username = req.body.username;
-        console.log('redirecting to /');
+        // console.log('redirecting to /');
         res.redirect('/');
 
       } else {
