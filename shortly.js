@@ -99,29 +99,45 @@ app.post('/login', function(req, res) {
 
   db.knex('users').where( {'username': req.body.username} ).select('*')
     .then(function (result) {
-
-      newHash = bcrypt.hashSync(PasswordAttempt, result[0].salt);
-      var actualPasswordHash = result[0].passwordHash;
-      console.log('newHash', newHash, 'hPA', actualPasswordHash);
-      if (newHash === actualPasswordHash) {
-        req.session.isLoggedIn = true;
-        res.redirect('index');
+      console.log(result, 'result if user not in users');
+      if (result.length > 0 ) {
+        newHash = bcrypt.hashSync(PasswordAttempt, result[0].salt);
+        var actualPasswordHash = result[0].passwordHash;
+        // console.log('newHash', newHash, 'hPA', actualPasswordHash);
+        if (newHash === actualPasswordHash) {
+          console.log('they match');
+          req.session.isLoggedIn = true;
+          req.session.cookie.doesThisWork = 'blue';
+          res.redirect('/');
+        } else {
+          res.redirect('login');
+        }
       } else {
-        res.redirect('login');
+        res.redirect('/login');
       }
     });
-  
-  
 });
-
+//
 app.get('/signup', function(req, res) {
   res.render('signup');
 });
 
 app.post('/signup', function(req, res) {
-  var newUser = new User(req.body.username, req.body.password);
+  //check if user exists
+  db.knex('users').where( {'username': req.body.username} ).select('*')
+    .then(function (result) {
+      console.log(result.length, 'result.length');
+      if (result.length === 0) {
+        var newUser = new User(req.body.username, req.body.password);
+        req.session.isLoggedIn = true;
+        console.log('redirecting to /');
+        res.redirect('/'); 
 
-  res.end(); 
+      } else {
+        console.log('in else statement redirecting to login');
+        res.redirect('login');
+      }
+    });
 });
 
 
