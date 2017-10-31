@@ -40,6 +40,13 @@ var restrict = function(req, res, next) {
   }
 };
 
+app.post('/logout', restrict, function(req, res){
+  (console.log('running in post:logout'))
+  req.session.isLoggedIn = false;
+  req.session.username = false;
+  res.redirect('/login');
+});
+
 app.get('/', restrict, function(req, res) {
   res.render('index');
 });
@@ -48,7 +55,7 @@ app.get('/create', restrict, function(req, res) {
   res.render('index');
 });
 
-app.get('/links', restrict, 
+app.get('/links', restrict,
   //add restrict functions
   function(req, res) {
     Links.reset().fetch().then(function(links) {
@@ -56,7 +63,7 @@ app.get('/links', restrict,
     });
   });
 
-app.post('/links', restrict, function(req, res) {
+app.post('/links', function(req, res) {
   var uri = req.body.url;
 
   if (!util.isValidUrl(uri)) {
@@ -108,6 +115,7 @@ app.post('/login', function(req, res) {
           console.log('they match');
           req.session.isLoggedIn = true;
           req.session.cookie.doesThisWork = 'blue';
+          req.session.username = req.body.username;
           res.redirect('/');
         } else {
           res.redirect('login');
@@ -130,8 +138,9 @@ app.post('/signup', function(req, res) {
       if (result.length === 0) {
         var newUser = new User(req.body.username, req.body.password);
         req.session.isLoggedIn = true;
+        req.session.username = req.body.username;
         console.log('redirecting to /');
-        res.redirect('/'); 
+        res.redirect('/');
 
       } else {
         console.log('in else statement redirecting to login');
