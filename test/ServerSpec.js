@@ -14,7 +14,7 @@ var Link = require('../app/models/link');
 // Remove the 'x' from beforeEach block when working on
 // authentication tests.
 /************************************************************/
-var beforeEach = function() {};
+var xbeforeEach = function() {};
 /************************************************************/
 
 
@@ -191,12 +191,13 @@ describe('', function() {
 
         requestWithSession(options, function(error, res, body) {
           var code = res.body.code;
+          console.log('this is link-----------', link);
           expect(code).to.equal(link.get('code'));
           done();
         });
       });
 
-      xit('Shortcode redirects to correct url', function(done) {
+      it('Shortcode redirects to correct url', function(done) {
         var options = {
           'method': 'GET',
           'uri': 'http://127.0.0.1:4568/' + link.get('code')
@@ -209,7 +210,7 @@ describe('', function() {
         });
       });
 
-      xit('Returns all of the links to display on the links page', function(done) {
+      it('Returns all of the links to display on the links page', function(done) {
         var options = {
           'method': 'GET',
           'uri': 'http://127.0.0.1:4568/links'
@@ -281,7 +282,7 @@ describe('', function() {
       });
     });
 
-    xit('Signup logs in a new user', function(done) {
+    it('Signup logs in a new user', function(done) {
       // this requires a database dump to pass, as expected
       var options = {
         'method': 'POST',

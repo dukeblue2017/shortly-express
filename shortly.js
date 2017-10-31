@@ -27,11 +27,16 @@ app.use(expressSession({
   secret: 'cookie_secret',
   resave: true,
   saveUninitialized: true,
-  isLoggedIn: false
+//  isLoggedIn: false
 }));
+//
+// {
+//   '3AFvzN9Tji6bqdiAt5qHo1HXhnIjnv2C06.ZSe8ZeW8FsU27xAdY3%2Fp%2B3%2Bh5YMvq0OI1MX6oof0m9Y': {isLoggedIn: true}
+//   '3AFvzN9T12312451bqdiAt5qHo1HXhnIjnv2C06.ZSe8ZeW8FsU27xAdY3%2Fp%2B3%2Bh5YMvq0OI1MX6oof0m9Y': {isLoggedIn: true}
+// }
 
 var restrict = function(req, res, next) {
-  console.log('req.session:', req.session);
+  // console.log('req.session in restrict function:', req.session);
   if (req.session.isLoggedIn) {
     next();
   } else {
@@ -41,7 +46,7 @@ var restrict = function(req, res, next) {
 };
 
 app.post('/logout', restrict, function(req, res) {
-  (console.log('running in post:logout'));
+  // (console.log('running in post:logout'));
   req.session.isLoggedIn = false;
   req.session.username = false;
   res.redirect('/login');
@@ -59,6 +64,8 @@ app.get('/links', restrict,
   //add restrict functions
   function(req, res) {
     Links.reset().fetch().then(function(links) {
+      console.log('**************************************', links);
+      var userLinksObject = links._byId;
       res.status(200).send(links.models);
     });
   });
@@ -110,17 +117,21 @@ app.post('/login', function(req, res) {
       console.log(result, 'result if user not in users');
       if (result.length > 0 ) {
         newHash = bcrypt.hashSync(PasswordAttempt, result[0].salt);
-        var actualPasswordHash = result[0].passwordHash;
-        // console.log('newHash', newHash, 'hPA', actualPasswordHash);
-        if (newHash === actualPasswordHash) {
-          console.log('they match');
-          req.session.isLoggedIn = true;
-          req.session.cookie.doesThisWork = 'blue';
-          req.session.username = req.body.username;
-          res.redirect('/');
-        } else {
-          res.redirect('login');
-        }
+        var actualPasswordHash = result[0].password;
+        console.log('plain text pw', PasswordAttempt, 'hash', actualPasswordHash, 'the new hash: ~~~~~~~~~~~~~~~~~~~~~~~~~: ', newHash);
+
+        bcrypt.compare(PasswordAttempt, actualPasswordHash, function(err, match) {
+          if (match) {
+            console.log('they match');
+            req.session.isLoggedIn = true;
+            req.session.cookie.doesThisWork = 'blue';
+            req.session.username = req.body.username;
+            res.redirect('/');
+
+          } else {
+            res.redirect('/login');
+          }
+        });
       } else {
         res.redirect('/login');
       }
@@ -136,7 +147,7 @@ app.post('/signup', function(req, res) {
   db.knex('users').where( {'username': req.body.username} ).select('*')
     .then(function (result) {
       if (result.length === 0) {
-        var newUser = new User(req.body.username, req.body.password);
+        var newUser = new User({username: req.body.username, password: req.body.password });
         req.session.isLoggedIn = true;
         req.session.username = req.body.username;
         console.log('redirecting to /');
