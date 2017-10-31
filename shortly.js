@@ -64,9 +64,15 @@ app.get('/links', restrict,
   //add restrict functions
   function(req, res) {
     Links.reset().fetch().then(function(links) {
-      // console.log('**************************************', links);
-      var userLinksObject = links._byId;
-      res.status(200).send(links.models);
+      console.log('**************************************', links.models[0].attributes.username);
+      var userLinksObject = links.models;
+      var onlyThisUser = [];
+      userLinksObject.forEach(function(val, index) {
+        if (val.attributes.username === req.session.username) {
+          onlyThisUser.push(val);
+        }
+      });
+      res.status(200).send(onlyThisUser);
     });
   });
 
